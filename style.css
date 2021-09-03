@@ -1,0 +1,12 @@
+html {
+  height: 100%;
+}
+body {
+  background-color: gray;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-evenly;
+  height: 100%;
+  padding: 0px;
+  margin: 0px;
+}
