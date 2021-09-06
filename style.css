@@ -1,12 +1,17 @@
 html {
   height: 100%;
+  width: 100%;
+  overflow: hidden;
 }
 body {
-  background-color: gray;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-evenly;
-  height: 100%;
-  padding: 0px;
+  
+  position: fixed;
+  top: 0px;
+  left: 0px;
   margin: 0px;
+  padding: 0px;
+  height: 100%;
+  width: 100%;
+  background: gray;
+  background: radial-gradient(at center, #3498db 5%, #9b59b6 30%);
 }
