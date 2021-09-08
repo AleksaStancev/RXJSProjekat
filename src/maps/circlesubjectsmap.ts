@@ -7,8 +7,10 @@ export const circleSubjects: Map<CircleSubjects, Subject<ICircle>> = new Map<
   Subject<ICircle>
 >();
 
+circleSubjects.set(CircleSubjects.colissionCheck, new Subject<ICircle>());
+
 for (const value in CircleSubjects) {
   const numberValue = Number(value);
-  if (!isNaN(numberValue))
+  if (!isNaN(numberValue) && numberValue > 0)
     circleSubjects.set(numberValue, new Subject<ICircle>());
 }

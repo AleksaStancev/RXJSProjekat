@@ -10,6 +10,7 @@ import { CircleEvents } from "../enumerations/circleeventsenum";
 import { mouseEvents } from "../maps/mouseeventsmap";
 import { circleSubjects } from "../maps/circlesubjectsmap";
 import { circleEvents } from "../maps/circleeventsmap";
+import { delay } from "rxjs/operators";
 
 export class UIManager {
   private canvas: HTMLCanvasElement;
@@ -24,7 +25,7 @@ export class UIManager {
 
     merge(
       circleSubjects.get(CircleSubjects.mouseEnteredCircle),
-      circleEvents.get(CircleEvents.circleGenerated)
+      circleSubjects.get(CircleSubjects.circleValid)
     ).subscribe((circleToRender) => this.renderCircle(circleToRender));
   }
 

@@ -1,4 +1,4 @@
-import { Observable, Subscription } from "rxjs";
+import { from, Observable, of, Subscription } from "rxjs";
 import { filter, first } from "rxjs/operators";
 import { ICircle } from "../interfaces/icircle";
 import { ICoordinates } from "../interfaces/icoordinates";
@@ -16,28 +16,57 @@ export function checkIfPointIsInCircle(
   );
 }
 
-export function checkForCollision(
-  circles$: Observable<ICircle>,
-  newCircle: ICircle
-): boolean {
-  let collisionFound: boolean = false;
+export function CheckForAvailableSpaceAroundCircle(circle: ICircle): ICircle {
+  const circleSpacesAround: ICoordinates[] = [];
+  let availableSpaceFound: boolean = false;
 
-  const circles$Subscription: Subscription = circles$
+  circleSpacesAround.push({
+    x: circle.coordinates.x,
+    y: circle.coordinates.y - 100,
+  });
+  circleSpacesAround.push({
+    x: circle.coordinates.x + 100,
+    y: circle.coordinates.y - 100,
+  });
+  circleSpacesAround.push({
+    x: circle.coordinates.x + 100,
+    y: circle.coordinates.y,
+  });
+  circleSpacesAround.push({
+    x: circle.coordinates.x + 100,
+    y: circle.coordinates.y + 100,
+  });
+  circleSpacesAround.push({
+    x: circle.coordinates.x,
+    y: circle.coordinates.y + 100,
+  });
+  circleSpacesAround.push({
+    x: circle.coordinates.x - 100,
+    y: circle.coordinates.y + 100,
+  });
+  circleSpacesAround.push({
+    x: circle.coordinates.x - 100,
+    y: circle.coordinates.y,
+  });
+  circleSpacesAround.push({
+    x: circle.coordinates.x - 100,
+    y: circle.coordinates.y - 100,
+  });
+
+  from(circleSpacesAround)
     .pipe(
       first(
-        (circle) =>
-          checkIfPointIsInCircle(
-            newCircle.coordinates,
-            circle.coordinates,
-            circle.radius
-          ),
+        (circleSpaceAround: ICoordinates) =>
+          !checkIfPointIsInCircle(circle.coordinates, circleSpaceAround, 130),
         null
       ),
-      filter((circle) => circle !== null)
+      filter((circleSpaceAround: ICoordinates) => circleSpaceAround !== null)
     )
-    .subscribe((_) => {
-      collisionFound = true;
-      circles$Subscription.unsubscribe();
+    .subscribe((availableSpace: ICoordinates) => {
+      circle.coordinates = availableSpace;
+      availableSpaceFound = true;
     });
-  return collisionFound;
+
+    console.log("Nadjeno mesto" + availableSpaceFound);
+  return availableSpaceFound ? circle : null;
 }

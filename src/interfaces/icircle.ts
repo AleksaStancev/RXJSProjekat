@@ -10,6 +10,8 @@ export interface ICircle {
   alpha: number;
   path: Path2D;
   animation: Animations;
+  colissionsLeftToCheck: number;
+  colissionDetected: boolean;
   subjects: Map<CircleSubjects, Subject<ICircle>>;
   subscriptions: Subscription[];
 }

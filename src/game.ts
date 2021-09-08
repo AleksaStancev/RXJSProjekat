@@ -8,8 +8,8 @@ import { GameStateManager } from "./managers/gamestatemanager";
 import { ICircle } from "./interfaces/icircle";
 import { ICoordinates } from "./interfaces/icoordinates";
 import {
-  getRandomCircle,
-  getRandomInt,
+  GetRandomCircle,
+  GetRandomInt,
 } from "./libraries/randomgenerationlibrary";
 import { UIManager } from "./managers/uimanager";
 import { circleSubjects } from "./maps/circlesubjectsmap";
