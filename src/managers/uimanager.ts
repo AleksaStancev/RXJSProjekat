@@ -1,20 +1,31 @@
-import { Observable } from "rxjs";
+import { merge, observable, Observable, Subject } from "rxjs";
 import { setupAnimationAndGetLoopCondition } from "../libraries/animationlibrary";
 import { createAndAppend } from "../libraries/dommanipulations";
 import { Animations } from "../enumerations/animationsenum";
 import { ICircle as ICircle } from "../interfaces/icircle";
+import { ICoordinates } from "../interfaces/icoordinates";
+import { CircleSubjects } from "../enumerations/circlesubjectsenum";
+import { MouseEvents } from "../enumerations/mouseeventsenum";
+import { CircleEvents } from "../enumerations/circleeventsenum";
+import { mouseEvents } from "../maps/mouseeventsmap";
+import { circleSubjects } from "../maps/circlesubjectsmap";
+import { circleEvents } from "../maps/circleeventsmap";
 
 export class UIManager {
   private canvas: HTMLCanvasElement;
   private renderingContext: CanvasRenderingContext2D;
 
-  private loopCondition: boolean;
-  private renderedRects: ICircle[];
-
-  private mouseMoveEvents$: Observable<MouseEvent>;
+  private animationLoopCondition: boolean;
 
   constructor() {
-    this.renderedRects = [];
+    mouseEvents
+      .get(MouseEvents.mouseMove)
+      .subscribe((mouseCoordinates) => this.renderGradient(mouseCoordinates));
+
+    merge(
+      circleSubjects.get(CircleSubjects.mouseEnteredCircle),
+      circleEvents.get(CircleEvents.circleGenerated)
+    ).subscribe((circleToRender) => this.renderCircle(circleToRender));
   }
 
   renderCanvas(): void {
@@ -28,22 +39,26 @@ export class UIManager {
     this.renderingContext.shadowOffsetY = 4;
   }
 
-  renderGradient(x: number, y: number): void {
-    const xperc: number = Math.round((x / window.innerWidth) * 100);
-    const yperc: number = Math.round((y / window.innerHeight) * 100);
+  renderGradient(mouseCoordinates: ICoordinates): void {
+    const xperc: number = Math.round(
+      (mouseCoordinates.x / window.innerWidth) * 100
+    );
+    const yperc: number = Math.round(
+      (mouseCoordinates.y / window.innerHeight) * 100
+    );
     document.body.style.background = `radial-gradient(circle at ${xperc}% ${yperc}%,#3498db 5%, #9b59b6 40%)`;
   }
 
   renderCircle(circle: ICircle): void {
     window.requestAnimationFrame(() => {
       this.renderingContext.clearRect(
-        circle.x - circle.radius,
-        circle.y - circle.radius,
+        circle.coordinates.x - circle.radius,
+        circle.coordinates.y - circle.radius,
         2 * circle.radius + 15,
         2 * circle.radius + 15
       );
 
-      this.loopCondition = setupAnimationAndGetLoopCondition(
+      this.animationLoopCondition = setupAnimationAndGetLoopCondition(
         circle,
         this.renderingContext
       );
@@ -51,7 +66,7 @@ export class UIManager {
       this.renderingContext.stroke(circle.path);
       this.renderingContext.fill(circle.path);
 
-      if (this.loopCondition) this.renderCircle(circle);
+      if (this.animationLoopCondition) this.renderCircle(circle);
     });
   }
 }

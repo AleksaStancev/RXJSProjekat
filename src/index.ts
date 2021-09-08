@@ -1,5 +1,5 @@
-import { GameManager } from "./managers/gamemanager";
+import { Game } from "./game";
 
-const gameManager = new GameManager();
+const gameManager = new Game();
 
 gameManager.startGame();

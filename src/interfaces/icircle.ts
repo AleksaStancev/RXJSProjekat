@@ -1,11 +1,15 @@
+import { Subject, Subscription } from "rxjs";
 import { Animations } from "../enumerations/animationsenum";
+import { CircleSubjects } from "../enumerations/circlesubjectsenum";
+import { ICoordinates } from "./icoordinates";
 
 export interface ICircle {
-  x: number;
-  y: number;
+  coordinates: ICoordinates;
   radius: number;
   gradient: string;
   alpha: number;
   path: Path2D;
   animation: Animations;
+  subjects: Map<CircleSubjects, Subject<ICircle>>;
+  subscriptions: Subscription[];
 }

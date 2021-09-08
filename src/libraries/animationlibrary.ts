@@ -43,14 +43,14 @@ function zoomInAnimation(
   renderingContext: CanvasRenderingContext2D
 ): boolean {
   circle.path = new Path2D();
-  circle.path.arc(circle.x, circle.y, circle.radius, 0, Math.PI * 2);
+  circle.path.arc(circle.coordinates.x, circle.coordinates.y, circle.radius, 0, Math.PI * 2);
 
   let radgrad = renderingContext.createRadialGradient(
-    circle.x - 10,
-    circle.y - 10,
+    circle.coordinates.x - 10,
+    circle.coordinates.y - 10,
     10,
-    circle.x,
-    circle.y,
+    circle.coordinates.x,
+    circle.coordinates.y,
     50
   );
   radgrad.addColorStop(0, "#A7D30C");
