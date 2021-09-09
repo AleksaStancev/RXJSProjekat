@@ -2,5 +2,6 @@ export enum CircleSubjects {
   colissionCheck,
   mouseEnteredCircle,
   colissionCheckResponse,
-  circleValid,
+  renderCircle,
+  timeToLiveExpired,
 }

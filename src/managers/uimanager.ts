@@ -4,40 +4,80 @@ import { createAndAppend } from "../libraries/dommanipulations";
 import { Animations } from "../enumerations/animationsenum";
 import { ICircle as ICircle } from "../interfaces/icircle";
 import { ICoordinates } from "../interfaces/icoordinates";
-import { CircleSubjects } from "../enumerations/circlesubjectsenum";
-import { MouseEvents } from "../enumerations/mouseeventsenum";
-import { CircleEvents } from "../enumerations/circleeventsenum";
-import { mouseEvents } from "../maps/mouseeventsmap";
-import { circleSubjects } from "../maps/circlesubjectsmap";
-import { circleEvents } from "../maps/circleeventsmap";
+import { CircleSubjects } from "../enumerations/circleemittingsubjectsenum";
+import { MouseEvents } from "../enumerations/icoordinatesemittingobservablesenum";
+import { iCoordinatesEmittingObservables } from "../observableMaps/icoordinatesemittingobservablesmap";
+import { circleEmittingSubjects } from "../observableMaps/circleemittingsubjectsmap";
+import { circleEmittingObservables } from "../observableMaps/circleemittingobservablesmap";
 import { delay } from "rxjs/operators";
+import { numberEmittingSubjects } from "../observableMaps/numberemittingsubjectsmap";
+import { NumberEmittingSubjects } from "../enumerations/numberemittingsubjectsenum";
+import { IRemoveFromCanvasSettings } from "../interfaces/iremovefromcanvassettings";
+import { IRemoveCircleFromCanvasSettings } from "../interfaces/iremovecirclefromcanvassettings";
 
 export class UIManager {
-  private canvas: HTMLCanvasElement;
-  private renderingContext: CanvasRenderingContext2D;
+  private gameCanvas: HTMLCanvasElement;
+  private gameRenderingContext: CanvasRenderingContext2D;
+
+  private scoreCanvas: HTMLCanvasElement;
+  private scoreRenderingContext: CanvasRenderingContext2D;
 
   private animationLoopCondition: boolean;
 
   constructor() {
-    mouseEvents
+    iCoordinatesEmittingObservables
       .get(MouseEvents.mouseMove)
       .subscribe((mouseCoordinates) => this.renderGradient(mouseCoordinates));
 
-    merge(
-      circleSubjects.get(CircleSubjects.mouseEnteredCircle),
-      circleSubjects.get(CircleSubjects.circleValid)
-    ).subscribe((circleToRender) => this.renderCircle(circleToRender));
+    circleEmittingSubjects
+      .get(CircleSubjects.renderCircle)
+      .subscribe((circleToRender) => this.renderCircle(circleToRender));
+
+    numberEmittingSubjects
+      .get(NumberEmittingSubjects.scoreChanged)
+      .subscribe((score: number) =>
+        this.renderText(score.toString(), { x: 130, y: 30 })
+      );
+
+    numberEmittingSubjects
+      .get(NumberEmittingSubjects.numberOfLivesChanged)
+      .subscribe((lives: number) =>
+        this.renderText(lives.toString(), {
+          x: window.innerWidth - 30,
+          y: 30,
+        })
+      );
   }
 
   renderCanvas(): void {
-    this.canvas = <HTMLCanvasElement>createAndAppend(document.body, "canvas");
-    this.renderingContext = this.canvas.getContext("2d");
-    this.canvas.height = window.innerHeight;
-    this.canvas.width = window.innerWidth;
+    this.scoreCanvas = <HTMLCanvasElement>(
+      createAndAppend(document.body, "canvas")
+    );
+    this.gameCanvas = <HTMLCanvasElement>(
+      createAndAppend(document.body, "canvas")
+    );
+    this.gameRenderingContext = this.gameCanvas.getContext("2d");
+    this.gameCanvas.height = window.innerHeight;
+    this.gameCanvas.width = window.innerWidth;
 
-    this.renderingContext.shadowBlur = 5;
-    this.renderingContext.shadowOffsetX = 4;
-    this.renderingContext.shadowOffsetY = 4;
+    this.gameRenderingContext.shadowBlur = 5;
+    this.gameRenderingContext.shadowOffsetX = 4;
+    this.gameRenderingContext.shadowOffsetY = 4;
+
+    this.scoreCanvas.height = 100;
+    this.scoreCanvas.width = window.innerWidth;
+
+    this.scoreRenderingContext = this.scoreCanvas.getContext("2d");
+
+    this.scoreRenderingContext.font = "30px Ariel";
+    this.scoreRenderingContext.fillStyle = "white";
+    this.scoreRenderingContext.textAlign = "center";
+    this.scoreRenderingContext.globalAlpha = 1;
+    this.scoreCanvas.style.position = "absolute";
+    this.scoreCanvas.style.top = "0px";
+
+    this.renderText("Score: ", { x: 50, y: 30 });
+    this.renderText("Lives: ", { x: window.innerWidth - 100, y: 30 });
   }
 
   renderGradient(mouseCoordinates: ICoordinates): void {
@@ -47,27 +87,59 @@ export class UIManager {
     const yperc: number = Math.round(
       (mouseCoordinates.y / window.innerHeight) * 100
     );
-    document.body.style.background = `radial-gradient(circle at ${xperc}% ${yperc}%,#3498db 5%, #9b59b6 40%)`;
+    this.gameCanvas.style.background = `radial-gradient(circle at ${xperc}% ${yperc}%,#3498db 5%, #9b59b6 40%)`;
+  }
+
+  private RemoveFromCanvas(settings: IRemoveFromCanvasSettings): void {
+    this.gameRenderingContext.clearRect(
+      settings.rectangleTopLeftCoordinates.x,
+      settings.rectangleTopLeftCoordinates.y,
+      settings.rectangleSideLenght,
+      settings.rectangleSideLenght
+    );
   }
 
   renderCircle(circle: ICircle): void {
     window.requestAnimationFrame(() => {
-      this.renderingContext.clearRect(
-        circle.coordinates.x - circle.radius,
-        circle.coordinates.y - circle.radius,
-        2 * circle.radius + 15,
-        2 * circle.radius + 15
-      );
+      let removeCircleFromCanvasSettings: IRemoveCircleFromCanvasSettings = {
+        deleteAfterDrawing: true,
+        deleteAfterDrawingSettings: {
+          rectangleSideLenght: 0,
+          rectangleTopLeftCoordinates: { x: 0, y: 0 },
+        },
+        deleteBeforeDrawing: true,
+        deleteBeforeDrawingSettings: {
+          rectangleSideLenght: 0,
+          rectangleTopLeftCoordinates: { x: 0, y: 0 },
+        },
+      };
 
       this.animationLoopCondition = setupAnimationAndGetLoopCondition(
         circle,
-        this.renderingContext
+        this.gameRenderingContext,
+        removeCircleFromCanvasSettings
       );
 
-      this.renderingContext.stroke(circle.path);
-      this.renderingContext.fill(circle.path);
+      if (removeCircleFromCanvasSettings.deleteBeforeDrawing)
+        this.RemoveFromCanvas(
+          removeCircleFromCanvasSettings.deleteBeforeDrawingSettings
+        );
+      this.gameRenderingContext.stroke(circle.path);
+      this.gameRenderingContext.fill(circle.path);
+      if (removeCircleFromCanvasSettings.deleteAfterDrawing)
+        this.RemoveFromCanvas(
+          removeCircleFromCanvasSettings.deleteAfterDrawingSettings
+        );
 
       if (this.animationLoopCondition) this.renderCircle(circle);
+    });
+  }
+
+  renderText(text: string, coordinates: ICoordinates): void {
+    window.requestAnimationFrame(() => {
+      this.scoreRenderingContext.clearRect(coordinates.x - 30, 0, 50, 50);
+
+      this.scoreRenderingContext.fillText(text, coordinates.x, coordinates.y);
     });
   }
 }

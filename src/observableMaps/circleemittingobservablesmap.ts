@@ -1,20 +1,20 @@
 import { interval, Observable, Subject } from "rxjs";
 import { delay, map, share, take } from "rxjs/operators";
-import { CircleEvents } from "../enumerations/circleeventsenum";
+import { CircleEmittingObservables } from "../enumerations/circleemittingobservablesenum";
 import { ICircle } from "../interfaces/icircle";
 import {
   GetRandomCircle,
   GetRandomInt,
 } from "../libraries/randomgenerationlibrary";
 
-export const circleEvents: Map<CircleEvents, Observable<ICircle>> = new Map<
-  CircleEvents,
+export const circleEmittingObservables: Map<
+  CircleEmittingObservables,
   Observable<ICircle>
->();
+> = new Map<CircleEmittingObservables, Observable<ICircle>>();
 
-circleEvents.set(
-  CircleEvents.circleGenerated,
-  interval(100).pipe(
+circleEmittingObservables.set(
+  CircleEmittingObservables.circleGenerated,
+  interval(500).pipe(
     delay(GetRandomInt(0, 500)),
     map(() => GetRandomCircle())
   )

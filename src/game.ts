@@ -1,9 +1,8 @@
 import { fromEvent, interval, Observable, Subject } from "rxjs";
 import { delay, map, share } from "rxjs/operators";
 import { Animations } from "./enumerations/animationsenum";
-import { CircleEvents } from "./enumerations/circleeventsenum";
-import { CircleSubjects } from "./enumerations/circlesubjectsenum";
-import { MouseEvents } from "./enumerations/mouseeventsenum";
+import { CircleSubjects } from "./enumerations/circleemittingsubjectsenum";
+import { MouseEvents } from "./enumerations/icoordinatesemittingobservablesenum";
 import { GameStateManager } from "./managers/gamestatemanager";
 import { ICircle } from "./interfaces/icircle";
 import { ICoordinates } from "./interfaces/icoordinates";
@@ -12,17 +11,18 @@ import {
   GetRandomInt,
 } from "./libraries/randomgenerationlibrary";
 import { UIManager } from "./managers/uimanager";
-import { circleSubjects } from "./maps/circlesubjectsmap";
-import { mouseEvents } from "./maps/mouseeventsmap";
-import { circleEvents } from "./maps/circleeventsmap";
+import { circleEmittingSubjects } from "./observableMaps/circleemittingsubjectsmap";
+import { iCoordinatesEmittingObservables } from "./observableMaps/icoordinatesemittingobservablesmap";
+import { circleEmittingObservables } from "./observableMaps/circleemittingobservablesmap";
 
 export class Game {
   private uiManager: UIManager;
   private gameState: GameStateManager;
 
   constructor() {
-    this.gameState = new GameStateManager();
     this.uiManager = new UIManager();
+    this.gameState = new GameStateManager();
+
   }
 
   startGame(): void {

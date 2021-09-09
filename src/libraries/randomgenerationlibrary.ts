@@ -1,6 +1,6 @@
 import { Subject } from "rxjs";
 import { Animations } from "../enumerations/animationsenum";
-import { CircleSubjects } from "../enumerations/circlesubjectsenum";
+import { CircleSubjects } from "../enumerations/circleemittingsubjectsenum";
 import { ICircle } from "../interfaces/icircle";
 import { ICoordinates } from "../interfaces/icoordinates";
 
@@ -22,6 +22,7 @@ export function GetRandomCircle(): ICircle {
     subjects: new Map<CircleSubjects, Subject<ICircle>>(),
     colissionsLeftToCheck: 0,
     colissionDetected: false,
+    timeToLive: 3,
   };
 }
 

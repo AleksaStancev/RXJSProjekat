@@ -1,16 +1,15 @@
 import { from } from "rxjs";
 import { filter, toArray } from "rxjs/operators";
 import { Animations } from "../enumerations/animationsenum";
-import { CircleSubjects } from "../enumerations/circlesubjectsenum";
-import { MouseEvents } from "../enumerations/mouseeventsenum";
+import { CircleSubjects } from "../enumerations/circleemittingsubjectsenum";
+import { MouseEvents } from "../enumerations/icoordinatesemittingobservablesenum";
+import { NumberEmittingObservables } from "../enumerations/numberemittingobservablesenum";
 import { ICircle } from "../interfaces/icircle";
 import { ICoordinates } from "../interfaces/icoordinates";
-import { circleSubjects } from "../maps/circlesubjectsmap";
-import { mouseEvents } from "../maps/mouseeventsmap";
-import {
-  CheckForAvailableSpaceAroundCircle,
-  checkIfPointIsInCircle,
-} from "./geometrylibrary";
+import { circleEmittingSubjects } from "../observableMaps/circleemittingsubjectsmap";
+import { iCoordinatesEmittingObservables } from "../observableMaps/icoordinatesemittingobservablesmap";
+import { numberEmittingObservables } from "../observableMaps/numberemittingobservablesmap";
+import { CheckIfPointIsInCircle } from "./geometrylibrary";
 import { GetRandomCoordinates } from "./randomgenerationlibrary";
 
 export function ColissionResponseHandler(
@@ -18,48 +17,78 @@ export function ColissionResponseHandler(
   circles: ICircle[]
 ): void {
   circleToAdd.subscriptions.push(
-    mouseEvents
+    iCoordinatesEmittingObservables
       .get(MouseEvents.mouseMove)
       .subscribe((mouseCoordinates: ICoordinates) => {
         if (
-          checkIfPointIsInCircle(
+          CheckIfPointIsInCircle(
             mouseCoordinates,
             circleToAdd.coordinates,
             circleToAdd.radius
           )
         ) {
-          circleToAdd.animation = Animations.fadeOut;
-          circleSubjects.get(CircleSubjects.mouseEnteredCircle).next(circleToAdd);
+          circleEmittingSubjects
+            .get(CircleSubjects.mouseEnteredCircle)
+            .next(circleToAdd);
         }
       })
   );
   circleToAdd.subscriptions.push(
-    circleSubjects
+    circleEmittingSubjects
       .get(CircleSubjects.colissionCheck)
       .subscribe((newCircle: ICircle) => {
         newCircle.colissionsLeftToCheck--;
         if (
-          checkIfPointIsInCircle(newCircle.coordinates, circleToAdd.coordinates, 100)
+          CheckIfPointIsInCircle(
+            newCircle.coordinates,
+            circleToAdd.coordinates,
+            100
+          )
         )
           newCircle.colissionDetected = true;
-        circleSubjects.get(CircleSubjects.colissionCheckResponse).next(newCircle);
+        circleEmittingSubjects
+          .get(CircleSubjects.colissionCheckResponse)
+          .next(newCircle);
+      })
+  );
+  circleToAdd.subscriptions.push(
+    numberEmittingObservables
+      .get(NumberEmittingObservables.timeToLiveTimer)
+      .subscribe((time) => {
+        circleToAdd.timeToLive -= time;
+        if (circleToAdd.timeToLive <= 0) {
+          circleToAdd.animation = Animations.fadeOut;
+          circleEmittingSubjects
+            .get(CircleSubjects.timeToLiveExpired)
+            .next(circleToAdd);
+        }
       })
   );
   circles.push(circleToAdd);
-  circleSubjects.get(CircleSubjects.circleValid).next(circleToAdd);
+  circleEmittingSubjects.get(CircleSubjects.renderCircle).next(circleToAdd);
 }
 
-export function MouseEnteredCircleHandler(
+export function RemoveCircleHandler(
   enteredCircle: ICircle,
+  circles: ICircle[],
+  destructionAnimation: Animations
+): ICircle[] {
+  enteredCircle.animation = destructionAnimation;
+  circleEmittingSubjects.get(CircleSubjects.renderCircle).next(enteredCircle);
+  return RemoveCircleFromGameState(enteredCircle, circles);
+}
+
+function RemoveCircleFromGameState(
+  circleToRemove: ICircle,
   circles: ICircle[]
 ): ICircle[] {
   from(circles)
     .pipe(
-      filter((circle: ICircle) => circle !== enteredCircle),
+      filter((circle: ICircle) => circle !== circleToRemove),
       toArray()
     )
     .subscribe((newCircles: ICircle[]) => {
-      from(enteredCircle.subscriptions).subscribe((subscription) =>
+      from(circleToRemove.subscriptions).subscribe((subscription) =>
         subscription.unsubscribe()
       );
       circles = newCircles;
