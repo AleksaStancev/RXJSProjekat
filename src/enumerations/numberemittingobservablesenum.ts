@@ -1,3 +1,3 @@
 export enum NumberEmittingObservables {
-  timeToLiveTimer,
+  timeToLiveTimer = 200,
 }

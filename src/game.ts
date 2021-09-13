@@ -1,31 +1,31 @@
-import { fromEvent, interval, Observable, Subject } from "rxjs";
-import { delay, map, share } from "rxjs/operators";
-import { Animations } from "./enumerations/animationsenum";
-import { CircleSubjects } from "./enumerations/circleemittingsubjectsenum";
-import { MouseEvents } from "./enumerations/icoordinatesemittingobservablesenum";
+import { interval } from "rxjs";
+import { CircleEmittingObservables } from "./enumerations/circleemittingobservablesenum";
+import { ControlSubjects } from "./enumerations/controlsubjectsenum";
 import { GameStateManager } from "./managers/gamestatemanager";
-import { ICircle } from "./interfaces/icircle";
-import { ICoordinates } from "./interfaces/icoordinates";
-import {
-  GetRandomCircle,
-  GetRandomInt,
-} from "./libraries/randomgenerationlibrary";
+
 import { UIManager } from "./managers/uimanager";
-import { circleEmittingSubjects } from "./observableMaps/circleemittingsubjectsmap";
-import { iCoordinatesEmittingObservables } from "./observableMaps/icoordinatesemittingobservablesmap";
-import { circleEmittingObservables } from "./observableMaps/circleemittingobservablesmap";
+import { ObservableAndSubjectProvider } from "./providers/observableandsubjectprovider";
 
 export class Game {
+  private observableAndSubjectManager: ObservableAndSubjectProvider;
   private uiManager: UIManager;
   private gameState: GameStateManager;
 
   constructor() {
-    this.uiManager = new UIManager();
-    this.gameState = new GameStateManager();
+    this.observableAndSubjectManager = new ObservableAndSubjectProvider();
+    this.uiManager = new UIManager(this.observableAndSubjectManager);
+    this.gameState = new GameStateManager(this.observableAndSubjectManager);
 
+    /*this.observableAndSubjectManager
+      .getControlSubject(ControlSubjects.startCircleGeneration)
+      .next();*/
+
+    this.observableAndSubjectManager.sendNextTo(
+      ControlSubjects,
+      ControlSubjects.startCircleGeneration,
+      1
+    );
   }
 
-  startGame(): void {
-    this.uiManager.renderCanvas();
-  }
+  startGame(): void {}
 }

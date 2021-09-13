@@ -1,6 +1,7 @@
-import { Subject } from "rxjs";
+import { Subject, Subscription } from "rxjs";
 import { Animations } from "../enumerations/animationsenum";
-import { CircleSubjects } from "../enumerations/circleemittingsubjectsenum";
+import { CircleEmittingSubjects } from "../enumerations/circleemittingsubjectsenum";
+import { CoordinatesEmittingObservables } from "../enumerations/coordinatesemittingobservablesenum";
 import { ICircle } from "../interfaces/icircle";
 import { ICoordinates } from "../interfaces/icoordinates";
 
@@ -18,8 +19,11 @@ export function GetRandomCircle(): ICircle {
     alpha: 1,
     path: new Path2D(),
     animation: Animations.zoomIn,
-    subscriptions: [],
-    subjects: new Map<CircleSubjects, Subject<ICircle>>(),
+    subscriptions: new Map<
+      CircleEmittingSubjects | CoordinatesEmittingObservables,
+      Subscription
+    >(),
+    subjects: new Map<CircleEmittingSubjects, Subject<ICircle>>(),
     colissionsLeftToCheck: 0,
     colissionDetected: false,
     timeToLive: 3,
