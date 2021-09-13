@@ -1,6 +1,5 @@
-import { interval } from "rxjs";
-import { CircleEmittingObservables } from "./enumerations/circleemittingobservablesenum";
-import { ControlSubjects } from "./enumerations/controlsubjectsenum";
+
+import { ControlSubjects } from "./enumerations/subjects/controlsubjectsenum";
 import { GameStateManager } from "./managers/gamestatemanager";
 
 import { UIManager } from "./managers/uimanager";

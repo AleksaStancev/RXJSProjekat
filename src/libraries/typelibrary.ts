@@ -1,9 +1,9 @@
-import { ControlSubjects } from "../enumerations/controlsubjectsenum";
-import { NumberEmittingSubjects } from "../enumerations/numberemittingsubjectsenum";
-import { CircleEmittingSubjects } from "../enumerations/circleemittingsubjectsenum";
-import { CircleEmittingObservables } from "../enumerations/circleemittingobservablesenum";
-import { CoordinatesEmittingObservables } from "../enumerations/coordinatesemittingobservablesenum";
-import { NumberEmittingObservables } from "../enumerations/numberemittingobservablesenum";
+import { CircleEmittingObservables } from "../enumerations/observables/circleemittingobservablesenum";
+import { CoordinatesEmittingObservables } from "../enumerations/observables/coordinatesemittingobservablesenum";
+import { NumberEmittingObservables } from "../enumerations/observables/numberemittingobservablesenum";
+import { CircleEmittingSubjects } from "../enumerations/subjects/circleemittingsubjectsenum";
+import { ControlSubjects } from "../enumerations/subjects/controlsubjectsenum";
+import { NumberEmittingSubjects } from "../enumerations/subjects/numberemittingsubjectsenum";
 import { ICircle } from "../interfaces/icircle";
 import { ICoordinates } from "../interfaces/icoordinates";
 
@@ -44,6 +44,11 @@ type GetSubjectOrObservableEnumCondition4<
 > = SubjectOrObservableToGetEnumFromType extends typeof CoordinatesEmittingObservables
   ? CoordinatesEmittingObservables
   : never;
+
+export type CircleSubscriptionsKeyType =
+  | CircleEmittingSubjects
+  | CoordinatesEmittingObservables
+  | NumberEmittingObservables;
 
 export type SubjectOrObservableType =
   | CircleEmittingSubjectOrObservableType

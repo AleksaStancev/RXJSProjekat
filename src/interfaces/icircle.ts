@@ -1,8 +1,8 @@
 import { Subject, Subscription } from "rxjs";
 import { Animations } from "../enumerations/animationsenum";
-import { CircleEmittingSubjects } from "../enumerations/circleemittingsubjectsenum";
-import { CoordinatesEmittingObservables } from "../enumerations/coordinatesemittingobservablesenum";
-import { NumberEmittingObservables } from "../enumerations/numberemittingobservablesenum";
+import { CircleEmittingSubjects } from "../enumerations/subjects/circleemittingsubjectsenum";
+import { CircleSubscriptionsKeyType } from "../libraries/typelibrary";
+
 import { ICoordinates } from "./icoordinates";
 
 export interface ICircle {
@@ -15,11 +15,6 @@ export interface ICircle {
   colissionsLeftToCheck: number;
   colissionDetected: boolean;
   subjects: Map<CircleEmittingSubjects, Subject<ICircle>>;
-  subscriptions: Map<
-    | CircleEmittingSubjects
-    | CoordinatesEmittingObservables
-    | NumberEmittingObservables,
-    Subscription
-  >;
+  subscriptions: Map<CircleSubscriptionsKeyType, Subscription>;
   timeToLive: number;
 }

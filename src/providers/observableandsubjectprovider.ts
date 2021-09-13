@@ -1,17 +1,14 @@
 import { fromEvent, interval, Observable, Subject, Subscription } from "rxjs";
 import { delay, map, mapTo } from "rxjs/operators";
 import { ICircle } from "../interfaces/icircle";
-import { CircleEmittingObservables } from "../enumerations/circleemittingobservablesenum";
+
 import {
   GetRandomCircle,
   GetRandomInt,
 } from "../libraries/randomgenerationlibrary";
-import { CircleEmittingSubjects } from "../enumerations/circleemittingsubjectsenum";
-import { CoordinatesEmittingObservables } from "../enumerations/coordinatesemittingobservablesenum";
+
 import { ICoordinates } from "../interfaces/icoordinates";
-import { NumberEmittingObservables } from "../enumerations/numberemittingobservablesenum";
-import { NumberEmittingSubjects } from "../enumerations/numberemittingsubjectsenum";
-import { ControlSubjects } from "../enumerations/controlsubjectsenum";
+
 import {
   SubjectAndObservableEmittingType as SubjectAndObservableEmittingValueType,
   GetSubjectOrObservableEnum,
@@ -22,6 +19,12 @@ import {
   GetSubjectEnum,
   GetNextParametarType,
 } from "../libraries/typelibrary";
+import { CircleEmittingSubjects } from "../enumerations/subjects/circleemittingsubjectsenum";
+import { CircleEmittingObservables } from "../enumerations/observables/circleemittingobservablesenum";
+import { CoordinatesEmittingObservables } from "../enumerations/observables/coordinatesemittingobservablesenum";
+import { NumberEmittingObservables } from "../enumerations/observables/numberemittingobservablesenum";
+import { NumberEmittingSubjects } from "../enumerations/subjects/numberemittingsubjectsenum";
+import { ControlSubjects } from "../enumerations/subjects/controlsubjectsenum";
 
 export class ObservableAndSubjectProvider {
   private circleEmittingObservables: Map<

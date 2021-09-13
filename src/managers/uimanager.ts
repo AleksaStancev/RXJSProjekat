@@ -1,9 +1,7 @@
 import { createAndAppend } from "../libraries/dommanipulations";
 import { ICircle as ICircle } from "../interfaces/icircle";
 import { ICoordinates } from "../interfaces/icoordinates";
-import { CircleEmittingSubjects } from "../enumerations/circleemittingsubjectsenum";
-import { CoordinatesEmittingObservables } from "../enumerations/coordinatesemittingobservablesenum";
-import { NumberEmittingSubjects } from "../enumerations/numberemittingsubjectsenum";
+
 import { IRemoveFromCanvasSettings } from "../interfaces/iremovefromcanvassettings";
 import { ObservableAndSubjectProvider } from "../providers/observableandsubjectprovider";
 import { IRadialGradientSettings } from "../interfaces/iradialgradientsettings";
@@ -11,6 +9,9 @@ import { Animations } from "../enumerations/animationsenum";
 import { IRadialGradientOffsetAndColor } from "../interfaces/iradialgradientoffsetandcolor";
 import { from } from "rxjs";
 import { AbstractManager } from "./abstractmanager";
+import { CoordinatesEmittingObservables } from "../enumerations/observables/coordinatesemittingobservablesenum";
+import { CircleEmittingSubjects } from "../enumerations/subjects/circleemittingsubjectsenum";
+import { NumberEmittingSubjects } from "../enumerations/subjects/numberemittingsubjectsenum";
 
 export class UIManager extends AbstractManager {
   private gameCanvas: HTMLCanvasElement;

@@ -1,7 +1,8 @@
 import { Subject, Subscription } from "rxjs";
 import { Animations } from "../enumerations/animationsenum";
-import { CircleEmittingSubjects } from "../enumerations/circleemittingsubjectsenum";
-import { CoordinatesEmittingObservables } from "../enumerations/coordinatesemittingobservablesenum";
+import { CoordinatesEmittingObservables } from "../enumerations/observables/coordinatesemittingobservablesenum";
+import { CircleEmittingSubjects } from "../enumerations/subjects/circleemittingsubjectsenum";
+
 import { ICircle } from "../interfaces/icircle";
 import { ICoordinates } from "../interfaces/icoordinates";
 
