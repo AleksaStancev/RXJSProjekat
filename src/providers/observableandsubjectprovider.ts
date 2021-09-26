@@ -1,266 +1,261 @@
-import { fromEvent, interval, Observable, Subject, Subscription } from "rxjs";
-import { delay, map, mapTo } from "rxjs/operators";
-import { ICircle } from "../interfaces/icircle";
-
 import {
-  GetRandomCircle,
-  GetRandomInt,
-} from "../libraries/randomgenerationlibrary";
-
-import { ICoordinates } from "../interfaces/icoordinates";
-
-import {
-  SubjectAndObservableEmittingType as SubjectAndObservableEmittingValueType,
-  GetSubjectOrObservableEnum,
-  SubjectOrObservableType,
-  GetEmittingValueType as GetEmittingValueType,
-  SubjectOrObservableEnum,
-  SubjectType,
-  GetSubjectEnum,
-  GetNextParametarType,
-} from "../libraries/typelibrary";
-import { CircleEmittingSubjects } from "../enumerations/subjects/circleemittingsubjectsenum";
-import { CircleEmittingObservables } from "../enumerations/observables/circleemittingobservablesenum";
+  fromEvent,
+  interval,
+  merge,
+  Observable,
+  Subject,
+  Subscription,
+} from "rxjs";
+import { delay, map, mapTo, switchMap, takeUntil } from "rxjs/operators";
 import { CoordinatesEmittingObservables } from "../enumerations/observables/coordinatesemittingobservablesenum";
-import { NumberEmittingObservables } from "../enumerations/observables/numberemittingobservablesenum";
-import { NumberEmittingSubjects } from "../enumerations/subjects/numberemittingsubjectsenum";
-import { ControlSubjects } from "../enumerations/subjects/controlsubjectsenum";
+import { GameObjectEmittingObservables } from "../enumerations/observables/gameObjectEmittingObservables";
+import { KeyAndCoordinatesEmittingObservables } from "../enumerations/observables/keyAndCoordinatesEmittingObservables";
+import { NumberEmittingObservables } from "../enumerations/observables/numberEmittingObservables";
+import { ColissionCheckSubjects } from "../enumerations/subjects/colissionCheckSubjects";
+import { ControlSubjects } from "../enumerations/subjects/controlSubjects";
+import { GameObjectEmittingSubjects } from "../enumerations/subjects/gameObjectEmittingSubjects";
+import { NumberEmittingSubjects } from "../enumerations/subjects/numberEmittingSubjects";
+import { ICoordinates } from "../interfaces/icoordinates";
+import {
+  GetEmittingValueTypeFromObservableType as GetEmittingValueTypeFromObservableType,
+  GetEmittingValueTypeFromSubjectType,
+  GetObservableEnumFromObservableType,
+  GetSubjectEnumFromSubjectType,
+  ObservableEmittingTypes,
+  ObservableEnum,
+  ObservableType,
+  SubjectEmittingTypes,
+  SubjectEnum,
+  SubjectType,
+} from "../libraries/typeLibrary";
+import { ObjectFromInterfaceCreator } from "../staticClasses/objectFromInterfaceCreator";
+import { RandomGenerator } from "../staticClasses/randomGenerator";
+import { Utility } from "../staticClasses/utility";
 
 export class ObservableAndSubjectProvider {
-  private circleEmittingObservables: Map<
-    CircleEmittingObservables,
-    Observable<ICircle>
-  >;
+  private subjects: Map<SubjectEnum, Subject<SubjectEmittingTypes>>;
+  private observables: Map<ObservableEnum, Observable<ObservableEmittingTypes>>;
 
-  private circleEmittingSubjects: Map<CircleEmittingSubjects, Subject<ICircle>>;
-
-  private coordinatesEmittingObservables: Map<
-    CoordinatesEmittingObservables,
-    Observable<ICoordinates>
-  >;
-  private numberEmittingObservables: Map<
-    NumberEmittingObservables,
-    Observable<number>
-  >;
-
-  private numberEmittingSubjects: Map<NumberEmittingSubjects, Subject<number>>;
-
-  private controlSubjects: Map<ControlSubjects, Subject<number>>;
   constructor() {
-    this.setCircleEmittingObservables();
+    this.subjects = new Map<SubjectEnum, Subject<SubjectEmittingTypes>>();
+    this.observables = new Map<
+      ObservableEnum,
+      Observable<ObservableEmittingTypes>
+    >();
 
-    this.setCircleEmittingSubjects();
+    this.setGameObjectEmittingObservables();
+
+    this.setSubjectForEachEnumValueForPassedSubjectType(
+      GameObjectEmittingSubjects
+    );
 
     this.setCoordinatesEmittingObservables();
 
     this.setNumberEmittingObservables();
     this.setNumberEmittingSubjects();
 
-    this.setControlSubjects();
+    this.setSubjectForEachEnumValueForPassedSubjectType(ControlSubjects);
+    this.setSubjectForEachEnumValueForPassedSubjectType(ColissionCheckSubjects);
+    this.setKeyAndCoordinatesEmittingObservables();
   }
 
-  getSubscriptionTo<
-    SubjectOrObservableToSubscribeToType extends SubjectOrObservableType,
-    SubjectOrObservableToSubscribeToEnum extends GetSubjectOrObservableEnum<SubjectOrObservableToSubscribeToType>,
-    SubjectOrObservableToSubscribeToEmittinValueType extends GetEmittingValueType<SubjectOrObservableToSubscribeToType>
-  >(
-    subjectOrObservableToSubscribeToType: SubjectOrObservableToSubscribeToType,
-    subjectOrObservableToSubscribeToEnumValue: SubjectOrObservableToSubscribeToEnum,
+  getSubscriptionToObservable<ObservableToSubscribeTo extends ObservableType>(
+    observableToSubscribeToType: ObservableToSubscribeTo,
+    observableToSubscribeToEnumValue: GetObservableEnumFromObservableType<ObservableToSubscribeTo>,
     subscriptionFunction: (
-      emittedValue: SubjectOrObservableToSubscribeToEmittinValueType
+      emittedValue: GetEmittingValueTypeFromObservableType<ObservableToSubscribeTo>
     ) => void
   ): Subscription {
-    let observableForSubscribing: Observable<SubjectAndObservableEmittingValueType>;
-    switch (subjectOrObservableToSubscribeToType) {
-      case ControlSubjects:
-        observableForSubscribing =
-          this.getSubjectOrObservableFromMapWithKeyValidation(
-            this.controlSubjects,
-            subjectOrObservableToSubscribeToEnumValue as ControlSubjects
-          );
-        break;
-      case CircleEmittingSubjects:
-        observableForSubscribing =
-          this.getSubjectOrObservableFromMapWithKeyValidation(
-            this.circleEmittingSubjects,
-            subjectOrObservableToSubscribeToEnumValue as CircleEmittingSubjects
-          );
-        break;
-      case NumberEmittingSubjects:
-        observableForSubscribing =
-          this.getSubjectOrObservableFromMapWithKeyValidation(
-            this.numberEmittingSubjects,
-            subjectOrObservableToSubscribeToEnumValue as NumberEmittingSubjects
-          );
-        break;
-      case CircleEmittingObservables:
-        observableForSubscribing =
-          this.getSubjectOrObservableFromMapWithKeyValidation(
-            this.circleEmittingObservables,
-            subjectOrObservableToSubscribeToEnumValue as CircleEmittingObservables
-          );
-        break;
-      case NumberEmittingObservables:
-        observableForSubscribing =
-          this.getSubjectOrObservableFromMapWithKeyValidation(
-            this.numberEmittingObservables,
-            subjectOrObservableToSubscribeToEnumValue as NumberEmittingObservables
-          );
-        break;
-      case CoordinatesEmittingObservables:
-        observableForSubscribing =
-          this.getSubjectOrObservableFromMapWithKeyValidation(
-            this.coordinatesEmittingObservables,
-            subjectOrObservableToSubscribeToEnumValue as CoordinatesEmittingObservables
-          );
-        break;
-      default:
-        observableForSubscribing =
-          new Observable<SubjectAndObservableEmittingValueType>();
-        break;
-    }
-    return observableForSubscribing.subscribe(
-      (emittedValue: SubjectOrObservableToSubscribeToEmittinValueType) =>
-        subscriptionFunction(emittedValue)
+    return this.getObservableFromMapWithKeyValidation(
+      observableToSubscribeToType,
+      observableToSubscribeToEnumValue
+    )?.subscribe(
+      (
+        emittedValue: GetEmittingValueTypeFromObservableType<ObservableToSubscribeTo>
+      ) => subscriptionFunction(emittedValue)
     );
   }
 
-  sendNextTo<
-    SubjectToSendNextToType extends SubjectType,
-    SubjectToSendNextToEnum extends GetSubjectEnum<SubjectToSendNextToType>,
-    SubjectToSendNextToNextParametarType extends GetNextParametarType<SubjectToSendNextToType>
-  >(
+  getSubscriptionToSubject<SubjectToSubscribeTo extends SubjectType>(
+    subjectToSubscribeToType: SubjectToSubscribeTo,
+    subjectToSubscribeToEnumValue: GetSubjectEnumFromSubjectType<SubjectToSubscribeTo>,
+    subscriptionFunction: (
+      emittedValue: GetEmittingValueTypeFromSubjectType<SubjectToSubscribeTo>
+    ) => void
+  ): Subscription {
+    return this.getSubjectFromMapWithKeyValidation(
+      subjectToSubscribeToType,
+      subjectToSubscribeToEnumValue
+    )?.subscribe(
+      (
+        emittedValue: GetEmittingValueTypeFromSubjectType<SubjectToSubscribeTo>
+      ) => subscriptionFunction(emittedValue)
+    );
+  }
+
+  sendNextTo<SubjectToSendNextToType extends SubjectType>(
     subjectToSendNextToType: SubjectToSendNextToType,
-    subjectToSendNextToEnumValue: SubjectToSendNextToEnum,
-    subjectToSendNextToNextParametar: SubjectToSendNextToNextParametarType
+    subjectToSendNextToEnumValue: GetSubjectEnumFromSubjectType<SubjectToSendNextToType>,
+    subjectToSendNextToNextParametar: GetEmittingValueTypeFromSubjectType<SubjectToSendNextToType>
   ): void {
-    let subjectToNextTo: Subject<SubjectAndObservableEmittingValueType>;
-    switch (subjectToSendNextToType) {
-      case CircleEmittingSubjects:
-        subjectToNextTo = this.getSubjectOrObservableFromMapWithKeyValidation(
-          this.circleEmittingSubjects,
-          subjectToSendNextToEnumValue as CircleEmittingSubjects
-        );
-        break;
-      case ControlSubjects:
-        subjectToNextTo = this.getSubjectOrObservableFromMapWithKeyValidation(
-          this.controlSubjects,
-          subjectToSendNextToEnumValue as ControlSubjects
-        );
-        break;
-      case NumberEmittingSubjects:
-        subjectToNextTo = this.getSubjectOrObservableFromMapWithKeyValidation(
-          this.numberEmittingSubjects,
-          subjectToSendNextToEnumValue as NumberEmittingSubjects
-        );
-        break;
-      default:
-        subjectToNextTo = new Subject<SubjectToSendNextToNextParametarType>();
-        break;
-    }
-    subjectToNextTo.next(subjectToSendNextToNextParametar);
+    this.getSubjectFromMapWithKeyValidation(
+      subjectToSendNextToType,
+      subjectToSendNextToEnumValue
+    )?.next(subjectToSendNextToNextParametar);
   }
 
-  private getSubjectOrObservableFromMapWithKeyValidation<
-    SubjectOrObservableToGetEnum extends SubjectOrObservableEnum,
-    SubjectOrObservableToGetType extends Observable<SubjectAndObservableEmittingValueType>
+  private getObservableFromMapWithKeyValidation<
+    PassedObservableType extends ObservableType
   >(
-    map: Map<SubjectOrObservableToGetEnum, SubjectOrObservableToGetType>,
-    keyValue: SubjectOrObservableToGetEnum
-  ): SubjectOrObservableToGetType {
-    return map.has(keyValue) ? map.get(keyValue) : null;
+    observableType: PassedObservableType,
+    keyValue: GetObservableEnumFromObservableType<PassedObservableType>
+  ): Observable<GetEmittingValueTypeFromObservableType<PassedObservableType>> {
+    return <
+      Observable<GetEmittingValueTypeFromObservableType<PassedObservableType>>
+    >Utility.getFromMapWithKeyValidation(this.observables, keyValue);
   }
 
-  private setCircleEmittingObservables(): void {
-    this.circleEmittingObservables = new Map<
-      CircleEmittingObservables,
-      Observable<ICircle>
-    >();
+  private getSubjectFromMapWithKeyValidation<
+    PassedSubjectType extends SubjectType
+  >(
+    subjectType: PassedSubjectType,
+    keyValue: GetSubjectEnumFromSubjectType<PassedSubjectType>
+  ): Subject<GetEmittingValueTypeFromSubjectType<PassedSubjectType>> {
+    return <Subject<GetEmittingValueTypeFromSubjectType<PassedSubjectType>>>(
+      Utility.getFromMapWithKeyValidation(this.subjects, keyValue)
+    );
+  }
 
-    this.circleEmittingObservables.set(
-      CircleEmittingObservables.circleGenerated,
-      interval(500).pipe(
-        delay(GetRandomInt(0, 100)),
-        map(() => GetRandomCircle())
+  private setGameObjectEmittingObservables(): void {
+    this.addToObservables(
+      GameObjectEmittingObservables,
+      GameObjectEmittingObservables.gameObjectGenerated,
+      interval(1000).pipe(
+        delay(RandomGenerator.getRandomInt(0, 500)),
+        map((_) => RandomGenerator.getRandomGameObject())
       )
     );
   }
 
-  private setCircleEmittingSubjects(): void {
-    this.circleEmittingSubjects = new Map<
-      CircleEmittingSubjects,
-      Subject<ICircle>
-    >();
-
-    for (const value in CircleEmittingSubjects) {
-      const numberValue = Number(value);
-      if (!isNaN(numberValue))
-        this.circleEmittingSubjects.set(numberValue, new Subject<ICircle>());
-    }
-  }
-
   private setCoordinatesEmittingObservables(): void {
-    this.coordinatesEmittingObservables = new Map<
+    this.addToObservables(
       CoordinatesEmittingObservables,
-      Observable<ICoordinates>
-    >();
-
-    this.coordinatesEmittingObservables.set(
       CoordinatesEmittingObservables.mouseMove,
       fromEvent<MouseEvent>(document, "mousemove").pipe(
         map((mouseEvent: MouseEvent) => ({ x: mouseEvent.x, y: mouseEvent.y }))
       )
     );
 
-    this.coordinatesEmittingObservables.set(
+    this.addToObservables(
+      CoordinatesEmittingObservables,
       CoordinatesEmittingObservables.mouseDown,
       fromEvent<MouseEvent>(document, "mousedown").pipe(
         map((mouseEvent: MouseEvent) => ({ x: mouseEvent.x, y: mouseEvent.y }))
       )
     );
 
-    this.coordinatesEmittingObservables.set(
+    this.addToObservables(
+      CoordinatesEmittingObservables,
       CoordinatesEmittingObservables.mouseUp,
       fromEvent<MouseEvent>(document, "mouseup").pipe(
+        map((mouseEvent: MouseEvent) => ({ x: mouseEvent.x, y: mouseEvent.y }))
+      )
+    );
+
+    this.addToObservables(
+      CoordinatesEmittingObservables,
+      CoordinatesEmittingObservables.mouseClicked,
+      fromEvent<MouseEvent>(document, "click").pipe(
         map((mouseEvent: MouseEvent) => ({ x: mouseEvent.x, y: mouseEvent.y }))
       )
     );
   }
 
   private setNumberEmittingObservables(): void {
-    this.numberEmittingObservables = new Map<
+    this.addToObservables(
       NumberEmittingObservables,
-      Observable<number>
-    >();
-    this.numberEmittingObservables.set(
       NumberEmittingObservables.timeToLiveTimer,
       interval(1000).pipe(mapTo(1))
     );
   }
 
-  private setNumberEmittingSubjects(): void {
-    this.numberEmittingSubjects = new Map<
-      NumberEmittingSubjects,
-      Subject<number>
-    >();
+  private setKeyAndCoordinatesEmittingObservables(): void {
+    this.addToObservables(
+      KeyAndCoordinatesEmittingObservables,
+      KeyAndCoordinatesEmittingObservables.keyPressWithMouseDown,
+      this.getObservableFromMapWithKeyValidation(
+        CoordinatesEmittingObservables,
+        CoordinatesEmittingObservables.mouseDown
+      ).pipe(
+        switchMap((mouseDownCoordinates: ICoordinates) =>
+          fromEvent<KeyboardEvent>(document, "keydown").pipe(
+            takeUntil(
+              merge(
+                this.getObservableFromMapWithKeyValidation(
+                  CoordinatesEmittingObservables,
+                  CoordinatesEmittingObservables.mouseMove
+                ),
+                this.getObservableFromMapWithKeyValidation(
+                  CoordinatesEmittingObservables,
+                  CoordinatesEmittingObservables.mouseUp
+                )
+              )
+            ),
+            map((keyDown) =>
+              ObjectFromInterfaceCreator.createKeyAndCoordinates(
+                keyDown.key,
+                mouseDownCoordinates
+              )
+            )
+          )
+        )
+      )
+    );
+  }
 
-    this.numberEmittingSubjects.set(
+  private setNumberEmittingSubjects(): void {
+    this.addToSubjects(
+      NumberEmittingSubjects,
       NumberEmittingSubjects.scoreChanged,
       new Subject<number>()
     );
 
-    this.numberEmittingSubjects.set(
+    this.addToSubjects(
+      NumberEmittingSubjects,
       NumberEmittingSubjects.numberOfLivesChanged,
       new Subject<number>()
     );
   }
-  private setControlSubjects(): void {
-    this.controlSubjects = new Map<ControlSubjects, Subject<number>>();
 
-    for (const value in ControlSubjects) {
+  private setSubjectForEachEnumValueForPassedSubjectType<
+    PassedSubjectType extends SubjectType
+  >(passedSubjectType: PassedSubjectType): void {
+    for (const value in passedSubjectType) {
       const numberValue = Number(value);
       if (!isNaN(numberValue))
-        this.controlSubjects.set(numberValue, new Subject<number>());
+        this.addToSubjects(
+          passedSubjectType,
+          numberValue as GetSubjectEnumFromSubjectType<PassedSubjectType>,
+          new Subject<GetEmittingValueTypeFromSubjectType<PassedSubjectType>>()
+        );
     }
+  }
+
+  private addToSubjects<PassedSubjectType extends SubjectType>(
+    subjectType: PassedSubjectType,
+    subjectEnum: GetSubjectEnumFromSubjectType<PassedSubjectType>,
+    subject: Subject<GetEmittingValueTypeFromSubjectType<PassedSubjectType>>
+  ): void {
+    this.subjects.set(subjectEnum, subject);
+  }
+
+  private addToObservables<PassedObservableType extends ObservableType>(
+    observableType: PassedObservableType,
+    observableEnum: GetObservableEnumFromObservableType<PassedObservableType>,
+    observable: Observable<
+      GetEmittingValueTypeFromObservableType<PassedObservableType>
+    >
+  ): void {
+    this.observables.set(observableEnum, observable);
   }
 }

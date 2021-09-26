@@ -6,6 +6,7 @@
       "module": "esnext",
       "target": "esnext",
       "jsx": "react",
-      "allowJs": true
+      "allowJs": true,
+      "allowSyntheticDefaultImports": true
     }
   }

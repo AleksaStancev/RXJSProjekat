@@ -1,90 +1,65 @@
-import { from, Subscription } from "rxjs";
 import {
-  GetSubjectOrObservableEnum,
-  SubjectOrObservableEnum,
-  SubjectOrObservableType,
-  GetEmittingValueType,
-  SubjectType,
-  GetNextParametarType,
-  GetSubjectEnum,
-} from "../libraries/typelibrary";
-import { ObservableAndSubjectProvider } from "../providers/observableandsubjectprovider";
+  GetEmittingValueTypeFromObservableType,
+  GetEmittingValueTypeFromSubjectType,
+  GetObservableEnumFromObservableType,
+  GetSubjectEnumFromSubjectType,
+  ManagersSubscriptionKeyEnum,
+  ObservableType,
+  SubjectType
+} from "../libraries/typeLibrary";
+import { ObservableAndSubjectProvider } from "../providers/observableAndSubjectProvider";
+import { SubscriptionManager } from "./abstractSubscriptionManager";
 
-export abstract class AbstractManager {
-  private subscriptions: Map<SubjectOrObservableEnum, Subscription>;
-
+export abstract class AbstractManager extends SubscriptionManager<ManagersSubscriptionKeyEnum> {
   private observableAndSubjectProvider: ObservableAndSubjectProvider;
-
   constructor(observableAndSubjectProvider: ObservableAndSubjectProvider) {
-    this.subscriptions = new Map<SubjectOrObservableEnum, Subscription>();
+    super();
     this.observableAndSubjectProvider = observableAndSubjectProvider;
   }
 
-  protected subscribeTo<
-    SubjectOrObservableToSubscribeToType extends SubjectOrObservableType,
-    SubjectOrObservableToSubscribeToEnum extends GetSubjectOrObservableEnum<SubjectOrObservableToSubscribeToType>,
-    SubjectOrObservableToSubscribeToEmittingValueType extends GetEmittingValueType<SubjectOrObservableToSubscribeToType>
+  protected subscribeToObservable<
+    ObservableToSubscribeToType extends ObservableType
   >(
-    subjectOrObservableToSubscribeToType: SubjectOrObservableToSubscribeToType,
-    subjectOrObservableToSubscribeToEnumValue: SubjectOrObservableToSubscribeToEnum,
+    observableToSubscribeToType: ObservableToSubscribeToType,
+    observableToSubscribeToEnumValue: GetObservableEnumFromObservableType<ObservableToSubscribeToType>,
     subscriptionFunction: (
-      emittedValue: SubjectOrObservableToSubscribeToEmittingValueType
+      emittedValue: GetEmittingValueTypeFromObservableType<ObservableToSubscribeToType>
     ) => void
   ): void {
-    this.subscriptions.set(
-      subjectOrObservableToSubscribeToEnumValue,
-      this.getSubscriptionTo(
-        subjectOrObservableToSubscribeToType,
-        subjectOrObservableToSubscribeToEnumValue,
+    const subscriptionToAdd =
+      this.observableAndSubjectProvider.getSubscriptionToObservable(
+        observableToSubscribeToType,
+        observableToSubscribeToEnumValue,
         subscriptionFunction
-      )
-    );
+      );
+    this.addSubscription(observableToSubscribeToEnumValue, subscriptionToAdd);
   }
 
-  protected getSubscriptionTo<
-    SubjectOrObservableToSubscribeToType extends SubjectOrObservableType,
-    SubjectOrObservableToSubscribeToEnum extends GetSubjectOrObservableEnum<SubjectOrObservableToSubscribeToType>,
-    SubjectOrObservableToSubscribeToEmittingValueType extends GetEmittingValueType<SubjectOrObservableToSubscribeToType>
-  >(
-    subjectOrObservableToSubscribeToType: SubjectOrObservableToSubscribeToType,
-    subjectOrObservableToSubscribeToEnumValue: SubjectOrObservableToSubscribeToEnum,
+  protected subscribeToSubject<SubjectSubscribeToType extends SubjectType>(
+    subjectToSubscribeToType: SubjectSubscribeToType,
+    subjectToSubscribeToEnumValue: GetSubjectEnumFromSubjectType<SubjectSubscribeToType>,
     subscriptionFunction: (
-      emittedValue: SubjectOrObservableToSubscribeToEmittingValueType
+      emittedValue: GetEmittingValueTypeFromSubjectType<SubjectSubscribeToType>
     ) => void
-  ): Subscription {
-    return this.observableAndSubjectProvider.getSubscriptionTo(
-      subjectOrObservableToSubscribeToType,
-      subjectOrObservableToSubscribeToEnumValue,
-      subscriptionFunction
-    );
+  ): void {
+    const subscriptionToAdd =
+      this.observableAndSubjectProvider.getSubscriptionToSubject(
+        subjectToSubscribeToType,
+        subjectToSubscribeToEnumValue,
+        subscriptionFunction
+      );
+    this.addSubscription(subjectToSubscribeToEnumValue, subscriptionToAdd);
   }
 
-  sendNextTo<
-    SubjectToSendNextToType extends SubjectType,
-    SubjectToSendNextToEnum extends GetSubjectEnum<SubjectToSendNextToType>,
-    SubjectToSendNextToNextParametarType extends GetNextParametarType<SubjectToSendNextToType>
-  >(
+  sendNextTo<SubjectToSendNextToType extends SubjectType>(
     subjectToSendNextToType: SubjectToSendNextToType,
-    subjectToSendNextToEnumValue: SubjectToSendNextToEnum,
-    subjectToSendNextToNextParametar: SubjectToSendNextToNextParametarType
+    subjectToSendNextToEnumValue: GetSubjectEnumFromSubjectType<SubjectToSendNextToType>,
+    subjectToSendNextToNextParametar: GetEmittingValueTypeFromSubjectType<SubjectToSendNextToType>
   ): void {
     this.observableAndSubjectProvider.sendNextTo(
       subjectToSendNextToType,
       subjectToSendNextToEnumValue,
       subjectToSendNextToNextParametar
-    );
-  }
-
-  protected unsubscribeFrom(
-    subjectObservableOrEnum: SubjectOrObservableEnum
-  ): void {
-    if (this.subscriptions.has(subjectObservableOrEnum))
-      this.subscriptions.get(subjectObservableOrEnum).unsubscribe();
-  }
-
-  protected unsubscribeFromAll(): void {
-    from(this.subscriptions.values()).subscribe((subscription: Subscription) =>
-      subscription.unsubscribe()
     );
   }
 }

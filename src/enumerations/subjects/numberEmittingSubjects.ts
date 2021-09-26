@@ -1,4 +1,4 @@
 export enum NumberEmittingSubjects {
-  scoreChanged,
+  scoreChanged = 50,
   numberOfLivesChanged,
 }

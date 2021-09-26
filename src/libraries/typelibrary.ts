@@ -1,138 +1,201 @@
-import { CircleEmittingObservables } from "../enumerations/observables/circleemittingobservablesenum";
+import { GameObjectEmittingObservables } from "../enumerations/observables/gameObjectEmittingObservables";
 import { CoordinatesEmittingObservables } from "../enumerations/observables/coordinatesemittingobservablesenum";
-import { NumberEmittingObservables } from "../enumerations/observables/numberemittingobservablesenum";
-import { CircleEmittingSubjects } from "../enumerations/subjects/circleemittingsubjectsenum";
-import { ControlSubjects } from "../enumerations/subjects/controlsubjectsenum";
-import { NumberEmittingSubjects } from "../enumerations/subjects/numberemittingsubjectsenum";
-import { ICircle } from "../interfaces/icircle";
+import { NumberEmittingObservables } from "../enumerations/observables/numberEmittingObservables";
+import { GameObjectEmittingSubjects } from "../enumerations/subjects/gameObjectEmittingSubjects";
+import { NumberEmittingSubjects } from "../enumerations/subjects/numberEmittingSubjects";
+import { GameObject } from "../uiObjects/gameObjects/abstractGameObject";
 import { ICoordinates } from "../interfaces/icoordinates";
+import { ControlSubjects } from "../enumerations/subjects/controlSubjects";
+import { ColissionCheckSubjects } from "../enumerations/subjects/colissionCheckSubjects";
+import { IColissionCheckStatus } from "../interfaces/iColissionCheckStatus";
+import { IPathAndPaintingStyle } from "../interfaces/ui/iPathAndPaintingStyle";
+import { ITextAndTextPaintingStyle } from "../interfaces/ui/iTextAndTextPaintingStyle";
+import { IKeyAndCoordinates } from "../interfaces/iKeyAndCoordinates";
+import { KeyAndCoordinatesEmittingObservables } from "../enumerations/observables/keyAndCoordinatesEmittingObservables";
 
-export type SubjectAndObservableEmittingType =
-  | ICircle
-  | ICoordinates
+export type RenderValueTypes =
+  | IPathAndPaintingStyle
+  | ITextAndTextPaintingStyle;
+
+export type SubjectOrObservableEmittingTypes =
+  | SubjectEmittingTypes
+  | ObservableEmittingTypes;
+
+export type SubjectEmittingTypes =
+  | GameObject
   | number
-  | any;
+  | null
+  | IColissionCheckStatus;
 
-export type SubjectOrObservableEnum =
+export type ObservableEmittingTypes =
+  | GameObject
+  | number
+  | ICoordinates
+  | IKeyAndCoordinates;
+
+export type SubjectEnum =
   | ControlSubjects
-  | CircleEmittingSubjects
+  | GameObjectEmittingSubjects
   | NumberEmittingSubjects
-  | CircleEmittingObservables
+  | ColissionCheckSubjects;
+
+export type ObservableEnum =
+  | GameObjectEmittingObservables
   | NumberEmittingObservables
-  | CoordinatesEmittingObservables;
-
-export type GetSubjectOrObservableEnum<
-  SubjectOrObservableToGetEnumFromType extends SubjectOrObservableType
-> = SubjectOrObservableToGetEnumFromType extends SubjectType
-  ? GetSubjectEnum<SubjectOrObservableToGetEnumFromType>
-  : GetSubjectOrObservableEnumCondition2<SubjectOrObservableToGetEnumFromType>;
-
-type GetSubjectOrObservableEnumCondition2<
-  SubjectOrObservableToGetEnumFromType extends SubjectOrObservableType
-> = SubjectOrObservableToGetEnumFromType extends typeof CircleEmittingObservables
-  ? CircleEmittingObservables
-  : GetSubjectOrObservableEnumCondition3<SubjectOrObservableToGetEnumFromType>;
-
-type GetSubjectOrObservableEnumCondition3<
-  SubjectOrObservableToGetEnumFromType extends SubjectOrObservableType
-> = SubjectOrObservableToGetEnumFromType extends typeof NumberEmittingObservables
-  ? NumberEmittingObservables
-  : GetSubjectOrObservableEnumCondition4<SubjectOrObservableToGetEnumFromType>;
-
-type GetSubjectOrObservableEnumCondition4<
-  SubjectOrObservableToGetEnumFromType extends SubjectOrObservableType
-> = SubjectOrObservableToGetEnumFromType extends typeof CoordinatesEmittingObservables
-  ? CoordinatesEmittingObservables
-  : never;
-
-export type CircleSubscriptionsKeyType =
-  | CircleEmittingSubjects
   | CoordinatesEmittingObservables
-  | NumberEmittingObservables;
+  | KeyAndCoordinatesEmittingObservables;
 
-export type SubjectOrObservableType =
-  | CircleEmittingSubjectOrObservableType
-  | NumberEmittingSubjectOrObservableType
-  | CoordinatesEmittingSubjectOrObservableType
-  | AnyEmittingSubjectOrObservableType;
-
-type CircleEmittingSubjectOrObservableType =
-  | CircleEmittingSubjectType
-  | typeof CircleEmittingObservables;
-
-type NumberEmittingSubjectOrObservableType =
-  | NumberEmittingSubjectType
-  | typeof NumberEmittingObservables;
-
-type CoordinatesEmittingSubjectOrObservableType =
-  typeof CoordinatesEmittingObservables;
-
-type AnyEmittingSubjectOrObservableType = AnyEmittingSubjectType;
-
-export type GetEmittingValueType<
-  SubjectOrObservableToGetEmittingValueTypeFromType extends SubjectOrObservableType
-> = SubjectOrObservableToGetEmittingValueTypeFromType extends NumberEmittingSubjectOrObservableType
-  ? number
-  : GetEmittingValueTypeCondition2<SubjectOrObservableToGetEmittingValueTypeFromType>;
-
-type GetEmittingValueTypeCondition2<
-  SubjectOrObservableToGetEmittingValueTypeFromType extends SubjectOrObservableType
-> = SubjectOrObservableToGetEmittingValueTypeFromType extends CircleEmittingSubjectOrObservableType
-  ? ICircle
-  : GetEmittingValueTypeCondition3<SubjectOrObservableToGetEmittingValueTypeFromType>;
-
-type GetEmittingValueTypeCondition3<
-  SubjectOrObservableToGetEmittingValueTypeFromType extends SubjectOrObservableType
-> = SubjectOrObservableToGetEmittingValueTypeFromType extends CoordinatesEmittingSubjectOrObservableType
-  ? ICoordinates
-  : GetEmittingValueTypeCondition4<SubjectOrObservableToGetEmittingValueTypeFromType>;
-
-type GetEmittingValueTypeCondition4<
-  SubjectOrObservableToGetEmittingValueTypeFromType extends SubjectOrObservableType
-> = SubjectOrObservableToGetEmittingValueTypeFromType extends AnyEmittingSubjectOrObservableType
-  ? any
-  : never;
+export type SubjectOrObservableEnum = SubjectEnum | ObservableEnum;
 
 export type SubjectType =
   | NumberEmittingSubjectType
-  | CircleEmittingSubjectType
-  | AnyEmittingSubjectType;
+  | GameObjectEmittingSubjectType
+  | NullEmittingSubjectType
+  | ColissionCheckStatusEmittingSubjectType;
 
 type NumberEmittingSubjectType = typeof NumberEmittingSubjects;
 
-type CircleEmittingSubjectType = typeof CircleEmittingSubjects;
+type GameObjectEmittingSubjectType = typeof GameObjectEmittingSubjects;
 
-type AnyEmittingSubjectType = typeof ControlSubjects;
+type NullEmittingSubjectType = typeof ControlSubjects;
 
-export type GetSubjectEnum<SubjectToGetEnumFromType extends SubjectType> =
-  SubjectToGetEnumFromType extends NumberEmittingSubjectType
-    ? NumberEmittingSubjects
-    : GetSubjectEnumCondition2<SubjectToGetEnumFromType>;
+type ColissionCheckStatusEmittingSubjectType = typeof ColissionCheckSubjects;
 
-type GetSubjectEnumCondition2<SubjectToGetEnumFromType extends SubjectType> =
-  SubjectToGetEnumFromType extends CircleEmittingSubjectType
-    ? CircleEmittingSubjects
-    : GetSubjectEnumCondition3<SubjectToGetEnumFromType>;
+export type ObservableType =
+  | NumberEmittingObservableType
+  | GameObjectEmittingObservableType
+  | CoordinatesEmittingObservableType
+  | KeyAndCoordinatesEmittingObservableType;
 
-type GetSubjectEnumCondition3<SubjectToGetEnumFromType extends SubjectType> =
-  SubjectToGetEnumFromType extends AnyEmittingSubjectType
-    ? ControlSubjects
-    : never;
+type NumberEmittingObservableType = typeof NumberEmittingObservables;
 
-export type GetNextParametarType<
-  SubjectToGetNextParametarTypeFromType extends SubjectType
-> = SubjectToGetNextParametarTypeFromType extends NumberEmittingSubjectType
+type GameObjectEmittingObservableType = typeof GameObjectEmittingObservables;
+
+type CoordinatesEmittingObservableType = typeof CoordinatesEmittingObservables;
+
+type KeyAndCoordinatesEmittingObservableType =
+  typeof KeyAndCoordinatesEmittingObservables;
+
+export type GetObservableEnumFromObservableType<
+  ObservableTypeToGetEnumFrom extends ObservableType
+> = ObservableTypeToGetEnumFrom extends GameObjectEmittingObservableType
+  ? GameObjectEmittingObservables
+  : GetObservableEnumFromObservableTypeCondition2<ObservableTypeToGetEnumFrom>;
+
+type GetObservableEnumFromObservableTypeCondition2<
+  ObservableTypeToGetEnumFrom extends ObservableType
+> = ObservableTypeToGetEnumFrom extends NumberEmittingObservableType
+  ? NumberEmittingObservables
+  : GetObservableEnumFromObservableTypeCondition3<ObservableTypeToGetEnumFrom>;
+
+type GetObservableEnumFromObservableTypeCondition3<
+  ObservableTypeToGetEnumFrom extends ObservableType
+> = ObservableTypeToGetEnumFrom extends CoordinatesEmittingObservableType
+  ? CoordinatesEmittingObservables
+  : GetObservableEnumFromObservableTypeConditio4<ObservableTypeToGetEnumFrom>;
+
+type GetObservableEnumFromObservableTypeConditio4<
+  ObservableTypeToGetEnumFrom extends ObservableType
+> = ObservableTypeToGetEnumFrom extends KeyAndCoordinatesEmittingObservableType
+  ? KeyAndCoordinatesEmittingObservables
+  : never;
+
+export type GameObjectSubscriptionObservableKeyTypes =
+  | CoordinatesEmittingObservableType
+  | NumberEmittingObservableType
+  | KeyAndCoordinatesEmittingObservableType;
+
+export type GameObjectSubscriptionSubjectKeyTypes =
+  ColissionCheckStatusEmittingSubjectType;
+
+export type GameObjectSubscriptionObservableKeyEnum =
+  | CoordinatesEmittingObservables
+  | NumberEmittingObservables
+  | KeyAndCoordinatesEmittingObservables;
+
+export type GameObjectSubscriptionSubjectKeyEnum = ColissionCheckSubjects;
+
+export type GameObjectSubscriptionsKeyEnum =
+  | GameObjectSubscriptionSubjectKeyEnum
+  | GameObjectSubscriptionObservableKeyEnum;
+
+export type ManagersSubscriptionKeyEnum = SubjectOrObservableEnum;
+
+export type UIObjectSubscriptionKeyEnum = CoordinatesEmittingObservables;
+
+export type SubscriptionKeyEnums =
+  | ManagersSubscriptionKeyEnum
+  | GameObjectSubscriptionsKeyEnum
+  | UIObjectSubscriptionKeyEnum;
+
+export type GetEmittingValueTypeFromObservableType<
+  ObservableTypeToGetEmittingValueTypeFrom extends ObservableType
+> = ObservableTypeToGetEmittingValueTypeFrom extends NumberEmittingObservableType
   ? number
-  : GetNextParametarTypeCondition2<SubjectToGetNextParametarTypeFromType>;
+  : GetEmittingValueTypeFromObservableTypeCondition2<ObservableTypeToGetEmittingValueTypeFrom>;
 
-type GetNextParametarTypeCondition2<
-  SubjectToGetNextParametarTypeFromType extends SubjectType
-> = SubjectToGetNextParametarTypeFromType extends CircleEmittingSubjectType
-  ? ICircle
-  : GetNextParametarTypeCondition3<SubjectToGetNextParametarTypeFromType>;
+type GetEmittingValueTypeFromObservableTypeCondition2<
+  ObservableTypeToGetEmittingValueTypeFrom extends ObservableType
+> = ObservableTypeToGetEmittingValueTypeFrom extends GameObjectEmittingObservableType
+  ? GameObject
+  : GetEmittingValueTypeFromObservableTypeCondition3<ObservableTypeToGetEmittingValueTypeFrom>;
 
-type GetNextParametarTypeCondition3<
-  SubjectToGetNextParametarTypeFromType extends SubjectType
-> = SubjectToGetNextParametarTypeFromType extends AnyEmittingSubjectType
-  ? any
+type GetEmittingValueTypeFromObservableTypeCondition3<
+  ObservableTypeToGetEmittingValueTypeFrom extends ObservableType
+> = ObservableTypeToGetEmittingValueTypeFrom extends CoordinatesEmittingObservableType
+  ? ICoordinates
+  : GetEmittingValueTypeFromObservableTypeCondition4<ObservableTypeToGetEmittingValueTypeFrom>;
+
+type GetEmittingValueTypeFromObservableTypeCondition4<
+  ObservableTypeToGetEmittingValueTypeFrom extends ObservableType
+> = ObservableTypeToGetEmittingValueTypeFrom extends KeyAndCoordinatesEmittingObservableType
+  ? IKeyAndCoordinates
+  : never;
+
+export type GetSubjectEnumFromSubjectType<
+  SubjectTypeToGetEnumFrom extends SubjectType
+> = SubjectTypeToGetEnumFrom extends NumberEmittingSubjectType
+  ? NumberEmittingSubjects
+  : GetSubjectEnumFromSubjectTypeCondition2<SubjectTypeToGetEnumFrom>;
+
+type GetSubjectEnumFromSubjectTypeCondition2<
+  SubjectTypeToGetEnumFrom extends SubjectType
+> = SubjectTypeToGetEnumFrom extends GameObjectEmittingSubjectType
+  ? GameObjectEmittingSubjects
+  : GetSubjectEnumFromSubjectTypeCondition3<SubjectTypeToGetEnumFrom>;
+
+type GetSubjectEnumFromSubjectTypeCondition3<
+  SubjectTypeToGetEnumFrom extends SubjectType
+> = SubjectTypeToGetEnumFrom extends NullEmittingSubjectType
+  ? ControlSubjects
+  : GetSubjectEnumFromSubjectTypeCondition4<SubjectTypeToGetEnumFrom>;
+
+type GetSubjectEnumFromSubjectTypeCondition4<
+  SubjectTypeToGetEnumFrom extends SubjectType
+> = SubjectTypeToGetEnumFrom extends ColissionCheckStatusEmittingSubjectType
+  ? ColissionCheckSubjects
+  : never;
+
+export type GetEmittingValueTypeFromSubjectType<
+  SubjectTypeToGetEmittingValueTypeFrom extends SubjectType
+> = SubjectTypeToGetEmittingValueTypeFrom extends NumberEmittingSubjectType
+  ? number
+  : GetEmittingValueTypeFromSubjectTypeCondition2<SubjectTypeToGetEmittingValueTypeFrom>;
+
+type GetEmittingValueTypeFromSubjectTypeCondition2<
+  SubjectTypeToGetEmittingValueTypeFrom extends SubjectType
+> = SubjectTypeToGetEmittingValueTypeFrom extends GameObjectEmittingSubjectType
+  ? GameObject
+  : GetEmittingValueTypeFromSubjectTypeCondition3<SubjectTypeToGetEmittingValueTypeFrom>;
+
+type GetEmittingValueTypeFromSubjectTypeCondition3<
+  SubjectTypeToGetEmittingValueTypeFrom extends SubjectType
+> = SubjectTypeToGetEmittingValueTypeFrom extends NullEmittingSubjectType
+  ? null
+  : GetEmittingValueTypeFromSubjectTypeCondition4<SubjectTypeToGetEmittingValueTypeFrom>;
+
+type GetEmittingValueTypeFromSubjectTypeCondition4<
+  SubjectTypeToGetEmittingValueTypeFrom extends SubjectType
+> = SubjectTypeToGetEmittingValueTypeFrom extends ColissionCheckStatusEmittingSubjectType
+  ? IColissionCheckStatus
   : never;

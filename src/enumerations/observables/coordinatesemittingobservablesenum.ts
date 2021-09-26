@@ -1,5 +1,6 @@
 export enum CoordinatesEmittingObservables {
-  mouseMove,
+  mouseMove = 0,
   mouseUp,
   mouseDown,
+  mouseClicked,
 }
